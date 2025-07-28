@@ -137,17 +137,31 @@ api_router.include_router(premium.router)
 # Include the router in the main app
 app.include_router(api_router)
 
+# Configure CORS dynamically
+import os
+cors_origins = [
+    "http://localhost:3000",  # Développement local
+    "http://127.0.0.1:3000",  # Développement local alternative
+]
+
+# Add preview domain from environment or detected from frontend env
+frontend_env_path = Path(__file__).parent.parent / "frontend" / ".env"
+if frontend_env_path.exists():
+    with open(frontend_env_path, 'r') as f:
+        for line in f:
+            if line.startswith('REACT_APP_BACKEND_URL='):
+                backend_url = line.split('=')[1].strip()
+                # Extract domain from backend URL for CORS
+                if backend_url.startswith('https://') and 'preview.emergentagent.com' in backend_url:
+                    preview_domain = backend_url.replace('/api', '').strip()
+                    if preview_domain not in cors_origins:
+                        cors_origins.append(preview_domain)
+                        app_logger.info(f"🌐 Added preview domain to CORS: {preview_domain}")
+
 app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
-    allow_origins=[
-        "http://localhost:3000",  # Développement local
-        "http://127.0.0.1:3000",  # Développement local alternative
-        "https://9830d5e9-641f-4c50-9f9c-7b286b384a09.preview.emergentagent.com",  # Preview Emergent
-        # Ajoutez vos domaines de production ici :
-        # "https://votre-domaine.com",
-        # "https://www.votre-domaine.com"
-    ],
+    allow_origins=cors_origins,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "User-Agent"],
 )
