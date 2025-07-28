@@ -143,6 +143,7 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",  # Développement local
         "http://127.0.0.1:3000",  # Développement local alternative
+        "https://9830d5e9-641f-4c50-9f9c-7b286b384a09.preview.emergentagent.com",  # Preview Emergent
         # Ajoutez vos domaines de production ici :
         # "https://votre-domaine.com",
         # "https://www.votre-domaine.com"
